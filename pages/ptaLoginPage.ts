@@ -1,12 +1,9 @@
 import { type Locator, type Page, expect } from "@playwright/test";
 
-export class LoginPage {
+export class PtaLoginPage {
   readonly page: Page;
 
   readonly loginButton: Locator;
-  readonly logoutButton: Locator;
-  readonly loggedInHeading: Locator;
-  readonly loggedInMessage: Locator;
   readonly passwordField: Locator;
   readonly usernameField: Locator;
 
@@ -14,13 +11,7 @@ export class LoginPage {
     this.page = page;
 
     this.loginButton = page.getByRole("button", { name: "Submit" });
-    this.logoutButton = page.getByRole("link", { name: "Log out" });
-    this.loggedInHeading = page.getByRole("heading", {
-      name: "Logged In Successfully",
-    });
-    this.loggedInMessage = page.getByText(
-      "Congratulations student. You successfully logged in!"
-    );
+
     this.passwordField = page.getByRole("textbox", { name: "Password" });
     this.usernameField = page.getByRole("textbox", { name: "Username" });
   }
@@ -31,7 +22,7 @@ export class LoginPage {
       .getByText(`Your ${messageType} is invalid!`);
   }
 
-  async loginToPractice(username: string, password: string): Promise<void> {
+  async loginToPta(username: string, password: string): Promise<void> {
     await this.usernameField.fill(username);
     await this.passwordField.fill(password);
     await this.loginButton.click();
@@ -61,29 +52,5 @@ export class LoginPage {
     }
   }
 
-  async validateLoggedIn(
-    url: string,
-    expectedResult: "success" | "failure",
-    errorMessageType?: "username" | "password"
-  ): Promise<void> {
-    if (expectedResult === "failure") {
-      await Promise.all([
-        this.validateErrorMessageVisibility(true, errorMessageType),
-        expect(this.page).not.toHaveURL(url),
-        expect(this.loggedInHeading).toBeHidden(),
-        expect(this.loggedInMessage).toBeHidden(),
-        expect(this.logoutButton).toBeHidden(),
-      ]);
-    }
 
-    if (expectedResult === "success") {
-      await Promise.all([
-        expect(this.page).toHaveURL(url),
-        this.validateErrorMessageVisibility(false),
-        expect(this.loggedInHeading).toBeVisible(),
-        expect(this.loggedInMessage).toBeVisible(),
-        expect(this.logoutButton).toBeVisible(),
-      ]);
-    }
-  }
 }
